@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./js/react.development.js"></script>
+    <script src="./js/react-dom.development.js"></script>
+    <script src="./js/babel.min.js"></script>
+</head>
+<body>
+    <div id="app"></div>
+    <script type="text/babel">
+        class App extends React.Component{
+            constructor (){
+                super()
+                this.state={
+                    list:[
+                        "今天下雨了",
+                        "天气不好",
+                        "天变冷了"
+                    ],
+                    result:[]
+                }
+            }
+            //增加操作
+            add=e=>{
+                // console.log(111)
+                if(e.keyCode===13){
+                    // let list=this.state.list;
+                    // list.push(e.target.value)
+                    this.setState({
+                        list:[...this.state.list,e.target.value]
+                    })
+                    e.target.value=''
+                }
+            }
+            //删除操作
+            delete=(index)=>{
+                //第一种
+                // this.state.list.splice(index,1)
+                // this.setState({list:this.state.list})//更新删除之后的数组
+                //第二种
+                this.setState({
+                    // list:this.state.list.filter((item,i)=>{
+                    //     if(i===index) return false;
+                    //     return true
+                    // })
+                    //第三种
+                    list:this.state.list.filter((item,i)=>{
+                        return i!==index //符合条件的留下来
+                    })
+                })
+            }
+            //更新操作
+            update=index=>{
+                let newValue=prompt("请输入更新的内容...")
+                // console.log(newValue)
+                if(newValue){
+                    this.state.list[index]=newValue
+                    this.setState({list:this.state.list})
+                }
+            }
+            //模糊查询
+            blur =()=>{          
+                //输入关键字进行查询
+                let keyword=prompt("请输入查询内容...")
+                //需要从list数组中遍历keyword 看看是否包含
+                let result=this.state.list.filter((item,i)=>{
+                    if(item.includes(keyword)){//如果数组的某项包含keyword,那么就重新放入新数组中
+                        return true
+                    }
+                    return false
+                })
+                // console.log(result)
+                
+                //需要实现查询后的keyword进行高亮显示
+                result.forEach((item,i,arr)=>{
+                arr[i]=arr[i].replace(new RegExp(keyword,"g"),"<span style='color:red;'>"+keyword+"</span>")
+            })
+             this.setState({result})
+            }
+            
+            render(){
+                let {list,result}=this.state;
+                return (
+                    <div>
+                    <input onKeyUp={this.add} type="text" placeholder="请输入内容..."/>
+                    <button onClick={this.blur}>模糊查询</button>
+                    <ul>
+                    {
+                        list.map((item,index)=>{
+                            return (
+                                <li key={index}>{item}
+                                <button onClick={this.delete.bind(this,index)}>删除</button>{/*bind使之不立即执行,且传入参数index*/}
+                                <button onClick={this.update.bind(this,index)}>更新</button>
+                                </li>
+                            )
+                        })
+                    }
+                    </ul>
+                    <hr/>
+                    <ul>
+                    {
+                        result.map((item,index)=>{
+                            return (
+                                <li key={index} dangerouslySetInnerHTML={{__html:item}}></li>
+                            )
+                        })
+                    }
+                    </ul>
+                    </div>
+                )
+            }
+        }
+        ReactDOM.render(<App/>,document.getElementById("app"))
+    </script>
+</body>
+</html>
